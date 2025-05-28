@@ -134,19 +134,23 @@ server.tool(
       );
 
       // 4. Create a new tree
+      console.log("Encoded stuff:", Buffer.from(githubToken).toString("base64"));
+      const treeReqBody = JSON.stringify({
+        base_tree: baseTreeSha,
+        tree: treeEntries,
+      });
+      const treeReqHeaders = {
+        Accept: "application/vnd.github+json",
+        Authorization: `Bearer ${githubToken}`,
+        "X-GitHub-Api-Version": "2022-11-28",
+        "Content-Type": "application/json",
+      };
       const treeUrl = `${GITHUB_API_URL}/repos/${owner}/${repo}/git/trees`;
+      console.log('Request details:', {treeReqBody, treeReqHeaders, treeUrl});
       const treeResponse = await fetch(treeUrl, {
         method: "POST",
-        headers: {
-          Accept: "application/vnd.github+json",
-          Authorization: `Bearer ${githubToken}`,
-          "X-GitHub-Api-Version": "2022-11-28",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          base_tree: baseTreeSha,
-          tree: treeEntries,
-        }),
+        headers: treeReqHeaders,
+        body: treeReqBody,
       });
 
       if (!treeResponse.ok) {
